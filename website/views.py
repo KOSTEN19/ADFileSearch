@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.models import User
 from django.contrib import messages 
 from django.http import HttpResponse
+from smb.SMBConnection import SMBConnection
 from django.contrib.auth.forms import UserCreationForm
 from django.http import FileResponse, Http404
 import json
@@ -82,6 +84,22 @@ def search(request):
         elif search_type=='2':
             documents = []
             for i in Document.objects.all():
+
+                userID = 'user'
+                password = 'password'
+                client_machine_name = 'localpcname'
+                server_name = 'servername'
+                server_ip = '0.0.0.0'
+                domain_name = 'domainname'
+                conn = SMBConnection(userID, password, client_machine_name, server_name, domain=domain_name, use_ntlm_v2=True,
+                     is_direct_tcp=True)
+                conn.connect(server_ip, 445)
+                connection.storeFile(service_name=service_name,  # It's the name of shared folder
+                path=path,
+                file_obj=file_obj)
+                file_attributes, filesize = conn.retrieveFile('smbtest', '/rfc1001.txt', file_obj)
+                connection.close()
+
                 pdfFileObj = open(i.url, 'rb')
                 pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
                 print(pageObj.extractText())
@@ -96,10 +114,20 @@ def search(request):
 def open_file(request):
     if request.method == 'POST':
         file_path = request.POST.get('file_path')
-        
-        #sfile_path=r'{}'.format(file_path)
+
+       # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+       # print(BASE_DIR)
+       # FILES_DIR = os.path.abspath(os.path.join(BASE_DIR, '../../../../User/koste/МГТУ/Справка.pdf'))
+      #  print(FILES_DIR)
+
+
+
+      #  fs = FileSystemStorage()
+      #  filename = 'User\\koste\\МГТУ\\image.pngСправка.pdf'
+        f = open('\\KOSTEN\\Users\\koste\\Downloads\\08_12_2020.pdf')
+        print(f.read())
         print(file_path)
-        f = open('C:\\User\\koste\\МГТУ\\image.pngСправка.pdf', 'r')
+        #f = open('', 'r')
 
         return FileResponse(open(f, 'rb'), content_type='application/pdf')
 

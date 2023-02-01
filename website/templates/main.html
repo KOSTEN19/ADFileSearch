@@ -10,11 +10,10 @@
     <div class="input-group mb-3" style="min-width: 700px">
       <input type="text" name="search" class="form-control" placeholder="Поиск по ключевым словам"
         aria-label="Поиск по ключевым словам" aria-describedby="button-addon2">
-      <select class="form-select" name="search_type" style="width:150px">
+      <select class="" name="search_type" style="width:150px">
         <option value="0">Название</option>
         <option value="1">Описание</option>
         <option value="2">В документе</option>
-        <option value="3" selected>Везде</option>
       </select>
       <button class="btn btn-outline-secondary" type="submit" class="btn btn-primary" id="button-addon2">Найти</button>
     </div>
@@ -28,7 +27,7 @@
 
 
 <div style="display: flex; justify-content: center; align-items: center; ">
-  <div class="card" style="width: 70%;">
+  <div class="card" style="width: 70%; margin-bottom: 50px;">
     <div class=" card-header d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
@@ -98,9 +97,9 @@
             <td style="word-wrap:break-word;">{{document.datetime |date:"d-m-Y H:i"}}</td>
 
 
-            <td style="word-wrap:break-word;">
-              <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+            <td style="word-wrap:break-word;" >
+              <div class="dropdown" style="width:100%">
+                <a class="btn btn-secondary  btn-sm dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                   aria-expanded="false">
                   Дополнительно
                 </a>
@@ -112,7 +111,7 @@
                   <form action="/open_file/" method="post">
                     {% csrf_token %}
                     <li><button class="dropdown-item" type="submit" name = "file_path" data-bs-toggle="offcanvas" value="{{document.url}}"
-                        aria-controls="offcanvasBottom">ОТкрыть файл</button></li>
+                        aria-controls="offcanvasBottom">Открыть файл</button></li>
                   </form>
                 </ul>
               </div>
@@ -128,7 +127,7 @@
       {% endif %}
 
     </div>
-    <div class="card-footer text-muted">
+    <div class="card-footer text-muted" > 
 
     </div>
   </div>
@@ -216,8 +215,8 @@
     if (elements_name[i].innerHTML.length > 20) {
       elements_name[i].innerHTML = elements_name[i].innerHTML.substring(0, 20) + "...";
     }
-    if (elements_desc[i].innerHTML.length > 80) {
-      elements_desc[i].innerHTML = elements_desc[i].innerHTML.substring(0, 80) + "...";
+    if (elements_desc[i].innerHTML.length > 150) {
+      elements_desc[i].innerHTML = elements_desc[i].innerHTML.substring(0, 150) + "...";
     }
   }
 
