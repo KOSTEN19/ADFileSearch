@@ -1,0 +1,227 @@
+{% include 'header.html' %}
+
+
+
+
+
+<div style="display: flex; justify-content: center; align-items: center; ">
+  <form action="/search/" method="post">
+    {% csrf_token %}
+    <div class="input-group mb-3" style="min-width: 700px">
+      <input type="text" name="search" class="form-control" placeholder="Поиск по ключевым словам"
+        aria-label="Поиск по ключевым словам" aria-describedby="button-addon2">
+      <select class="form-select" name="search_type" style="width:150px">
+        <option value="0">Название</option>
+        <option value="1">Описание</option>
+        <option value="2">В документе</option>
+        <option value="3" selected>Везде</option>
+      </select>
+      <button class="btn btn-outline-secondary" type="submit" class="btn btn-primary" id="button-addon2">Найти</button>
+    </div>
+  </form>
+</div>
+
+
+
+
+
+
+
+<div style="display: flex; justify-content: center; align-items: center; ">
+  <div class="card" style="width: 70%;">
+    <div class=" card-header d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
+        style="width: 50%;">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+
+            {% if document == 'False' %}
+            <li class="breadcrumb-item active " aria-current="page">Главная</li>
+            {% endif %}
+            {% if document == 'True' %}
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item active " aria-current="page">{{current_folder.name}}</li>
+            {% endif %}
+          </ol>
+        </nav>
+      </div>
+      <div class="dropdown text-end justify-content-md-end" style="width: 50%">
+        <button type="button" data-bs-toggle="modal" data-bs-target="#AddFolderModal" class="btn btn-primary">Добавить
+          папку</button>
+        <button type="button" data-bs-toggle="modal" data-bs-target="#AddFileModal" class="btn btn-warning">Добавить
+          файл</button>
+      </div>
+
+    </div>
+    <div class="card-body d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+      {% if document == 'False' %}
+      <table class="table" style="  table-layout: fixed; width:100% ">
+        <thead>
+          <tr>
+            <th scope="col">Название</th>
+            <th scope="col">Последнее изменение</th>
+            <th scope="col">Количество эл-ов</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for folder in folders %}
+          <tr onclick=' location.href = "/{{folder.name}}"'>
+            <td> {{folder.name}}</td>
+            <td>{{folder.datetime |date:"d-m-Y H:i"}}</td>
+            <td>{{folder.count}}</td>
+          </tr>
+        </tbody>
+        {% endfor %}
+
+      </table>
+      {% elif document == 'True' %}
+      <table class="table" style="  table-layout: fixed; width:100% ">
+        <thead>
+          <tr>
+            <th scope="col">Название</th>
+            <th style="width:60%" scope="col">Описание</th>
+            <th scope="col">Дата добавления</th>
+            <th scope="col">Дополниельно</th>
+
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for document in documents %}
+          <tr>
+            <td style="word-wrap:break-word;" class="cutname">{{document.name}}</td>
+
+            <td style=" word-wrap:break-word;" class="cutdesc">{{document.description}}</td>
+
+            <td style="word-wrap:break-word;">{{document.datetime |date:"d-m-Y H:i"}}</td>
+
+
+            <td style="word-wrap:break-word;">
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  Дополнительно
+                </a>
+
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" type="button" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom"
+                      onclick="Info('{{document.name}}');">Подробнее</a></li>
+                  <form action="/open_file/" method="post">
+                    {% csrf_token %}
+                    <li><button class="dropdown-item" type="submit" name = "file_path" data-bs-toggle="offcanvas" value="{{document.url}}"
+                        aria-controls="offcanvasBottom">ОТкрыть файл</button></li>
+                  </form>
+                </ul>
+              </div>
+
+            </td>
+
+
+          </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+      {% endif %}
+
+    </div>
+    <div class="card-footer text-muted">
+
+    </div>
+  </div>
+</div>
+
+{% include 'add_file.html' %}
+{% include 'add_folder.html' %}
+
+
+
+
+<div class="offcanvas offcanvas-bottom " tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title able-layout: fixed; width:100% " id="offcanvasBottomLabel" style="word-wrap:break-word;">
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body small" style="word-wrap:break-word;" id="info_desc">
+
+  </div>
+  <div class="offcanvas-body small" id="info_time">
+
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+  function CopyLink(url) {
+
+    // Select the text field
+    //copyText.select();
+    //copyText.setSelectionRange(0, 99999); // For mobile devices
+
+    // Copy the text inside the text field
+    alert(url);
+    navigator.clipboard.writeText(url);
+
+    // Alert the copied text
+    //alert("Copied the text: " + copyText.value);
+  }
+
+
+
+  function Notvalid() {
+    var yratext = /['<', '>']/;
+    if (yratext.test(document.getElementById('fname').value)) {
+      document.getElementById('fname').value = '';
+      alert('Введены запрещенные символы : < или >');
+    }
+  }
+
+  function Info(name) {
+    var i = copy1.indexOf(name);
+    if (copy1[i].length > 200) {
+      document.getElementById("offcanvasBottomLabel").innerHTML = copy1[i].substring(0, 200) + "...";
+    }
+    else {
+      document.getElementById("offcanvasBottomLabel").innerHTML = copy1[i];
+    }
+    if (copy2[i].length > 600) {
+      document.getElementById("info_desc").innerHTML = copy2[i].substring(0, 600) + "...";
+    }
+    else {
+      document.getElementById("info_desc").innerHTML = copy2[i].substring(0, 600);
+    }
+  }
+  var elements_name = document.getElementsByClassName("cutname");
+  var elements_desc = document.getElementsByClassName("cutdesc");
+  var copy1 = [];
+  copy1.length = elements_name.length;
+  var copy2 = [];
+  copy2.length = elements_desc.length;
+  for (var i = 0; i < elements_name.length; i++) {
+    copy1[i] = elements_name[i].innerHTML;
+  }
+
+  for (var i = 0; i < elements_desc.length; i++) {
+    copy2[i] = elements_desc[i].innerHTML;
+  }
+  console.log(copy1);
+  console.log(copy2);
+  var names = '';
+  for (var i = 0; i < elements_name.length; i++) {
+    if (elements_name[i].innerHTML.length > 20) {
+      elements_name[i].innerHTML = elements_name[i].innerHTML.substring(0, 20) + "...";
+    }
+    if (elements_desc[i].innerHTML.length > 80) {
+      elements_desc[i].innerHTML = elements_desc[i].innerHTML.substring(0, 80) + "...";
+    }
+  }
+
+</script>
+
+
+</html>

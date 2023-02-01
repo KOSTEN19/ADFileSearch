@@ -1,0 +1,64 @@
+<!-- Modal File -->
+<div class="modal fade" id="AddFileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Добавление файла</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+  
+          <form action="/add_document/" method="post">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              <label for="basic-url" class="form-label">Укажите путь </label>
+              <div class="input-group">
+                <span class="input-group-text" id="file_path">//KOSTEN-SERVER//</span>
+                <input name="path" type="text" class="form-control" placeholder="/отчеты/отчет1.pdf"
+                  aria-label="/отчеты/отчет1.pdf" aria-describedby="basic-addon1" onchange="GetFileName()" required>
+              </div>
+            </div>
+  
+            <div class=" mb-3">
+              <label for="basic-url" class="form-label">Укажите имя файла</label>
+              <input name="name" type="text" class="form-control" id="fname" placeholder="отчет1.pdf"
+                aria-label="отчет1.pdf" aria-describedby="basic-addons1" required onkeyup=" Notvalid() ">
+            </div>
+            <div class=" mb-3">
+              <label for="basic-url" class="form-label">Добавте описание файла</label>
+              <div class="input-group">
+                <textarea name="description" class="form-control" aria-label="With textarea" ></textarea>
+              </div>
+              <div class=" mb-3">
+                <label for="basic-url" class="form-label">Укажите папку</label>
+                <select class="form-select" name = "folder" aria-label="Default select example">
+                  {% for folder in folders %}
+                  
+                  {% if document == 'True' %}
+                    {% if current_folder == folder %}
+                    <option selected value="{{folder}}">{{folder}}</option>
+                    {% else %}
+                    <option   value="{{folder}}">{{folder}}</option>
+                    {% endif %}
+                  {% elif document == 'False' %}
+                  
+                  {% if year == folder.name %}
+                  <option selected value="{{folder}}">{{folder}}</option>
+                  {% else %}
+                  <option  value="{{folder}}">{{folder}}</option>
+                  {% endif %}
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-primary">Добавить</button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+  
