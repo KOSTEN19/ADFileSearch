@@ -10,6 +10,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import FileResponse, Http404
 import json
 import  urllib
+from urllib.parse import unquote
+import pandas as pd
+import pytesseract as pt
+import pdf2image
 import PyPDF2
 import os
 from datetime import datetime, timezone, timedelta
@@ -30,6 +34,8 @@ def year_folder(request,year):
     'current_folder': GroupDocuments.objects.get(name=year)}
     response = render(request, 'main.html', context)
     return response   
+
+
 def one_file(request,year,name_file):
     context = {}
     response = render(request, 'main.html', context)
@@ -39,17 +45,21 @@ def one_file(request,year,name_file):
 
 def add_document(request):
     if request.method == 'POST':
-        file_path =  request.POST.get('path')
+        file_path =  request.FILES.get('path')
+        
         file_name = request.POST.get('name')
         file_description = request.POST.get('description')
         folder = request.POST.get('folder')
+        for i in Document.objects.filter(name = file_name):
+            if i.group_id==str(folder):
+                    messages.error(request, 'Название файлов внутри одной папки не должны быть одинаковыми!!')
+                    return redirect('/'+folder)
         f = GroupDocuments.objects.get(name=folder)
         f.count+=1
+        file_path.name=str(file_name.encode())
+        print(file_path.name)
         f.save()
-        print("desc->",file_description)
-        print("desc->",file_name)
-        print("id->",folder)
-        document = Document(url=file_path, name = file_name,datetime = datetime.now(timezone(timedelta(hours=+3))).strftime('%Y-%m-%d %H:%M:%S'), description = file_description, group_id =folder )
+        document = Document(document=file_path, name = file_name,datetime = datetime.now(timezone(timedelta(hours=+3))).strftime('%Y-%m-%d %H:%M:%S'), description = file_description, group_id =folder )
         document.save()
     return redirect('/'+folder)
 
@@ -84,28 +94,16 @@ def search(request):
         elif search_type=='2':
             documents = []
             for i in Document.objects.all():
-
-                userID = 'user'
-                password = 'password'
-                client_machine_name = 'localpcname'
-                server_name = 'servername'
-                server_ip = '0.0.0.0'
-                domain_name = 'domainname'
-                conn = SMBConnection(userID, password, client_machine_name, server_name, domain=domain_name, use_ntlm_v2=True,
-                     is_direct_tcp=True)
-                conn.connect(server_ip, 445)
-                connection.storeFile(service_name=service_name,  # It's the name of shared folder
-                path=path,
-                file_obj=file_obj)
-                file_attributes, filesize = conn.retrieveFile('smbtest', '/rfc1001.txt', file_obj)
-                connection.close()
-
-                pdfFileObj = open(i.url, 'rb')
-                pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-                print(pageObj.extractText())
-                pdfFileObj.close()
-                print(search, i.name)
-                documents.append(i)
+                text = ''
+                reader = PyPDF2.PdfReader(unquote(i.get_url()[1:]))
+                for j in reader.pages:
+                    text+=j.extract_text()
+                if search in text:
+                    documents.append(i)
+                    break
+                pages = pdf2image.convert_from_path(pdf_path=unquote(i.get_url()[1:]), dpi=200, size=(1654,2340))    
+                for i in range(len(pages)):
+                    content = pt.image_to_string(pages[i], lang='ru')
             print(documents)        
             context={'documents': documents,'year':str(datetime.now(timezone(timedelta(hours=+3))).strftime('%Y')),'document': 'True'}
             response = render(request, 'main.html', context) 
@@ -113,23 +111,17 @@ def search(request):
 
 def open_file(request):
     if request.method == 'POST':
-        file_path = request.POST.get('file_path')
+        file_id = request.POST.get('file_id')
+        document = Document.objects.get(id=file_id)
+        print(document.get_url())
+        #print(str(document.group_id)+'/' + str(document.name))
+        try:
+            return FileResponse(open(unquote(document.get_url()[1:]), 'rb'), content_type='application/pdf')
+        except FileNotFoundError:
+            raise Http404()
 
-       # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-       # print(BASE_DIR)
-       # FILES_DIR = os.path.abspath(os.path.join(BASE_DIR, '../../../../User/koste/МГТУ/Справка.pdf'))
-      #  print(FILES_DIR)
-
-
-
-      #  fs = FileSystemStorage()
-      #  filename = 'User\\koste\\МГТУ\\image.pngСправка.pdf'
-        f = open('\\KOSTEN\\Users\\koste\\Downloads\\08_12_2020.pdf')
-        print(f.read())
-        print(file_path)
-        #f = open('', 'r')
-
-        return FileResponse(open(f, 'rb'), content_type='application/pdf')
+            return FileResponse(open(f, 'rb'), content_type='application/pdf')
+    return redirect('/')
 
 
 def add_folder(request):

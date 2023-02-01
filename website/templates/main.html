@@ -110,7 +110,7 @@
                       onclick="Info('{{document.name}}');">Подробнее</a></li>
                   <form action="/open_file/" method="post">
                     {% csrf_token %}
-                    <li><button class="dropdown-item" type="submit" name = "file_path" data-bs-toggle="offcanvas" value="{{document.url}}"
+                    <li><button class="dropdown-item" type="submit" name = "file_id" data-bs-toggle="offcanvas" value="{{document.id}}"
                         aria-controls="offcanvasBottom">Открыть файл</button></li>
                   </form>
                 </ul>
@@ -135,7 +135,7 @@
 
 {% include 'add_file.html' %}
 {% include 'add_folder.html' %}
-
+{% include  'message.html' %}
 
 
 
@@ -156,20 +156,16 @@
 
 <script type="text/javascript">
 
-  function CopyLink(url) {
 
-    // Select the text field
-    //copyText.select();
-    //copyText.setSelectionRange(0, 99999); // For mobile devices
+  
 
-    // Copy the text inside the text field
-    alert(url);
-    navigator.clipboard.writeText(url);
-
-    // Alert the copied text
-    //alert("Copied the text: " + copyText.value);
-  }
-
+$(document).ready(function(){
+        $('input[type="file"]').change(function(e){
+            var fileName = e.target.files[0].name;
+            document.getElementById("fname").value=fileName;
+            
+        });
+    });
 
 
   function Notvalid() {

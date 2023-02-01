@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from website import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
 
@@ -31,4 +33,4 @@ urlpatterns = [
      path('<int:year>/<str:name_file>', views.one_file),
     path('catalogs/', views.catalogs),
     path('open_file/', views.open_file)
-]
+]+ static(settings.DOCUMENT_URL, document_root=settings.DOCUMENT_ROOT)

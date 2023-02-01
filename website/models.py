@@ -13,12 +13,18 @@ class GroupDocuments(models.Model):
     def __str__(self):
         return self.name
 
+def content_file_name(instance, filename):
+    return '/'.join(['documents', instance.group_id, filename])
+
 class Document(models.Model):
-    url = models.TextField()
+    document = models.FileField(null=False, upload_to=content_file_name)
     name = models.TextField()
     description = models.TextField()
     datetime = models.DateTimeField()
     group_id = models.TextField()
     def __str__(self):
         return self.name
+    
+    def get_url(self):
+        return self.document.url    
 

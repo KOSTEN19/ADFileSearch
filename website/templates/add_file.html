@@ -8,16 +8,13 @@
         </div>
         <div class="modal-body">
   
-          <form action="/add_document/" method="post">
+          <form action="/add_document/"  enctype="multipart/form-data" method="post">
             {% csrf_token %}
             <div class="input-group mb-3">
-              <label for="basic-url" class="form-label">Укажите путь </label>
-              <div class="input-group">
-                <span class="input-group-text" id="file_path">//KOSTEN-SERVER//</span>
-                <input name="path" type="text" class="form-control" placeholder="/отчеты/отчет1.pdf"
-                  aria-label="/отчеты/отчет1.pdf" aria-describedby="basic-addon1" onchange="GetFileName()" required>
+              <div class="input-group mb-3">
+                <input name="path" type="file" accept="application/pdf" class="form-control" id="InputDocument" required>
               </div>
-            </div>
+              </div>
   
             <div class=" mb-3">
               <label for="basic-url" class="form-label">Укажите имя файла</label>
