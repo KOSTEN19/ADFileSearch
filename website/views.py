@@ -19,7 +19,7 @@ import os
 from datetime import datetime, timezone, timedelta
 from website.models import *
 
-# Create your views here. :)ggg1
+# Create your views here. :)ggg1qwertyui
 
 
 
